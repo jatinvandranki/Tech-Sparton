@@ -1,11 +1,12 @@
-/* --- Global Styles & Font --- */
+/* --- Global Styles & Animated Background --- */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
 
 :root {
-  --background: #0a0a0c;
-  --card-bg: rgba(22, 22, 25, 0.7);
-  --input-bg: #1f1f23;
-  --accent: #00aaff;
+  --background: #0d0d0f;
+  --card-bg: rgba(20, 20, 22, 0.65);
+  --input-bg: rgba(44, 44, 48, 0.7);
+  --accent: #00c6ff;
+  --accent-glow: rgba(0, 198, 255, 0.3);
   --text-light: #eef0f5;
   --text-dark: #8a8a93;
   --success: #28a745;
@@ -16,40 +17,67 @@
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
-  background: var(--background);
+  background-color: var(--background);
   color: var(--text-light);
+  overflow-x: hidden; /* Prevents scrollbars from the background */
 }
+
+/* Animated grid background */
+.container::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: 
+    linear-gradient(to right, rgba(0, 198, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 198, 255, 0.1) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: pan-grid 30s linear infinite;
+  z-index: -1;
+}
+
+@keyframes pan-grid {
+  0% { background-position: 0 0; }
+  100% { background-position: 40px 40px; }
+}
+
 
 /* --- Main Layout --- */
 .container {
   display: flex;
   justify-content: center;
-  padding: 3rem 1.5rem;
+  align-items: center;
+  min-height: 100vh;
+  padding: 1.5rem;
   box-sizing: border-box;
 }
 
 .card {
   background: var(--card-bg);
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-radius: 20px;
-  padding: 2.5rem;
+  padding: 2.5rem 3rem;
   width: 100%;
   max-width: 800px;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--border);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.5), inset 0 0 0 1px var(--border);
   text-align: center;
+  animation: floatIn 1.2s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 h1 {
   color: var(--accent);
   margin-bottom: 0.5rem;
   font-size: 2.2rem;
+  letter-spacing: -1px;
+  text-shadow: 0 0 10px var(--accent-glow);
 }
 
 .subtitle {
   color: var(--text-dark);
-  margin-bottom: 2.5rem;
+  margin-bottom: 3rem;
   font-size: 1rem;
 }
 
@@ -61,10 +89,6 @@ h1 {
   margin-bottom: 1.5rem;
 }
 
-.input-wrapper {
-  position: relative;
-}
-
 .input-field {
   width: 100%;
   padding: 1rem;
@@ -74,17 +98,17 @@ h1 {
   color: var(--text-light);
   font-size: 1rem;
   box-sizing: border-box;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
 }
 
 .input-field:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 20px rgba(0, 170, 255, 0.2);
+  box-shadow: 0 0 20px var(--accent-glow);
 }
 
 button {
-  grid-column: 1 / -1; /* Span full width */
+  grid-column: 1 / -1;
   padding: 1.1rem;
   font-size: 1.1rem;
   font-weight: 700;
@@ -93,18 +117,25 @@ button {
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(0, 198, 255, 0.25);
 }
 
 button:disabled {
   background: #4a4a4e;
+  transform: none;
+  box-shadow: none;
   cursor: not-allowed;
 }
 
 /* --- Results Dashboard --- */
 .results-container {
   margin-top: 2.5rem;
-  animation: fadeIn 0.8s ease-out;
+  animation: resultFadeIn 0.8s ease-out;
 }
 
 .comparison-grid {
@@ -119,6 +150,12 @@ button:disabled {
   border-radius: 12px;
   padding: 1.5rem;
   text-align: left;
+  transition: all 0.3s ease;
+}
+
+.model-card:hover {
+  transform: scale(1.03);
+  border-color: var(--accent);
 }
 
 .model-card h2 {
@@ -132,6 +169,7 @@ button:disabled {
 
 .model-card .status-icon {
   font-size: 1.5rem;
+  text-shadow: 0 0 10px var(--accent-glow);
 }
 
 .metrics {
@@ -160,13 +198,22 @@ button:disabled {
   color: var(--error);
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(15px); }
+/* --- Animations & Responsive --- */
+@keyframes floatIn {
+  from { opacity: 0; transform: translateY(30px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes resultFadeIn {
+  from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 768px) {
   .comparison-grid, .form-group {
     grid-template-columns: 1fr;
+  }
+  .card {
+    padding: 2rem 1.5rem;
   }
 }

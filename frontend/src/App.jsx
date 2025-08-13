@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 
 const formatNumber = (num) => {
@@ -41,6 +41,23 @@ function App() {
   const [targetHash, setTargetHash] = useState('');
   const [result, setResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingText, setLoadingText] = useState('Launch Comparative Analysis');
+
+  // Effect for the animated loading text
+  useEffect(() => {
+    let interval;
+    if (isLoading) {
+      const phases = ['Initializing OSINT...', 'Executing AI model...', 'Engaging Hashcat...', 'Compiling results...'];
+      let phaseIndex = 0;
+      interval = setInterval(() => {
+        setLoadingText(phases[phaseIndex % phases.length]);
+        phaseIndex++;
+      }, 1500);
+    } else {
+      setLoadingText('Launch Comparative Analysis');
+    }
+    return () => clearInterval(interval);
+  }, [isLoading]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -73,7 +90,7 @@ function App() {
             <input type="text" className="input-field" value={targetHash} onChange={(e) => setTargetHash(e.target.value)} placeholder="MD5 Hash to Crack" required />
           </div>
           <button type="submit" disabled={isLoading}>
-            {isLoading ? 'Executing Analysis...' : 'Launch Comparative Analysis'}
+            {isLoading ? loadingText : 'Launch Comparative Analysis'}
           </button>
         </form>
 
